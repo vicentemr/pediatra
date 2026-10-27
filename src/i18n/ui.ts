@@ -13,8 +13,8 @@ export type RouteKey = keyof typeof routes;
 export const ui = {
   es: {
     skip: 'Saltar al contenido',
-    nav: { about: 'Sobre mí', specialties: 'Especialidades', courses: 'Cursos', book: 'Reservar cita' },
-    switchLang: 'English',
+    nav: { home: 'Inicio', menu: 'Menú', about: 'Sobre mí', specialties: 'Especialidades', courses: 'Cursos', book: 'Reservar cita' },
+    switchLang: 'Idioma',
     demo: 'Demo',
     demoBanner: 'Web de demostración: nombres, precios y horarios son de ejemplo.',
     hero: {
@@ -73,8 +73,8 @@ export const ui = {
   },
   en: {
     skip: 'Skip to content',
-    nav: { about: 'About', specialties: 'Specialties', courses: 'Courses', book: 'Book a visit' },
-    switchLang: 'Español',
+    nav: { home: 'Home', menu: 'Menu', about: 'About', specialties: 'Specialties', courses: 'Courses', book: 'Book a visit' },
+    switchLang: 'Language',
     demo: 'Demo',
     demoBanner: 'Demo website: names, prices and schedules are examples.',
     hero: {
