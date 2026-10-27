@@ -1,0 +1,110 @@
+---
+import Base from '../layouts/Base.astro';
+import BookingPicker from '../components/BookingPicker.astro';
+import CourseList from '../components/CourseList.astro';
+import Profile from '../components/Profile.astro';
+import Faq from '../components/Faq.astro';
+import { site, type Lang } from '../data/site';
+import { t } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const s = t(lang);
+const L = s.landing;
+---
+
+<Base lang={lang} route="landing" title={`${L.title} · ${site.doctor.name}`} description={L.lead} minimal>
+  <section class="lp-hero" id="reservar">
+    <div class="wrap lp-hero__grid">
+      <div class="lp-hero__copy">
+        <h1>{L.title}</h1>
+        <p class="lead">{L.lead}</p>
+        <ul class="proof" role="list">
+          {L.proof.map((p) => (
+            <li>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4.5 10.5 3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              {p}
+            </li>
+          ))}
+        </ul>
+        <svg class="lp-curve" viewBox="0 0 400 120" aria-hidden="true">
+          <path d="M4 112 C 80 100, 150 70, 210 46 S 330 12, 396 8" pathLength="1" />
+          <circle cx="210" cy="46" r="7" />
+        </svg>
+      </div>
+      <BookingPicker lang={lang} id="lp-picker" />
+    </div>
+  </section>
+
+  <section class="section on-bottle lp-course">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>{L.courseTitle}</h2>
+        <p class="lead">{L.courseLead}</p>
+      </div>
+      <div class="lp-course__list">
+        <CourseList lang={lang} only={['primeros-solidos']} />
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap"><Profile lang={lang} /></div>
+  </section>
+
+  <section class="section lp-faq">
+    <div class="wrap"><Faq lang={lang} /></div>
+  </section>
+
+  <a class="btn lp-sticky" href="#reservar" hidden>{L.sticky}</a>
+</Base>
+
+<script>
+  // El botón fijo solo aparece cuando el selector de citas no está a la vista.
+  const sticky = document.querySelector<HTMLElement>('.lp-sticky');
+  const picker = document.getElementById('lp-picker');
+  if (sticky && picker) {
+    let seen = false;
+    new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) seen = true;
+      sticky.hidden = e.isIntersecting || !seen;
+    }).observe(picker);
+  }
+</script>
+
+<style>
+  .lp-hero { padding-block: clamp(1.5rem, 1rem + 3vw, 4rem) var(--space-5); }
+  .lp-hero__grid { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); gap: var(--space-5); align-items: start; }
+  .lp-hero__copy { display: grid; gap: var(--space-3); padding-top: var(--space-2); }
+  .lp-hero h1 { font-size: var(--step-4); max-width: 12ch; }
+  .proof { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+  .proof li { display: flex; gap: 0.6rem; align-items: center; font-weight: 700; }
+  .proof svg { width: 1.6rem; height: 1.6rem; flex: none; padding: 0.2rem; border-radius: 50%; background: var(--bottle); color: var(--ochre); }
+  .lp-curve { width: min(100%, 26rem); margin-top: var(--space-2); }
+  .lp-curve path { fill: none; stroke: var(--tomato); stroke-width: 4; stroke-linecap: round; }
+  .lp-curve circle { fill: var(--ochre); stroke: var(--bottle-deep); stroke-width: 3; }
+  @media (prefers-reduced-motion: no-preference) {
+    .lp-curve path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.6s var(--ease-out) 0.2s forwards; }
+  }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  .lp-course :global(.courses) { border-top-color: var(--on-bottle); }
+  .lp-course :global(.course) { border-bottom-color: rgb(234 243 230 / 0.2); }
+  .lp-course :global(.course__stage) { color: var(--ochre); }
+  .lp-course :global(.course__desc) { color: var(--on-bottle-soft); }
+  .lp-course :global(.course__format) { color: var(--ochre-soft); }
+
+  .lp-sticky {
+    position: fixed; left: var(--gutter); right: var(--gutter); bottom: 1rem; z-index: 30;
+    display: none;
+  }
+  @media (max-width: 960px) {
+    .lp-hero__grid { grid-template-columns: 1fr; gap: var(--space-4); }
+    .lp-curve { display: none; }
+  }
+  .lp-sticky[hidden] { display: none !important; }
+  @media (max-width: 720px) {
+    .lp-sticky { display: inline-flex; }
+    .lp-faq { padding-bottom: calc(var(--space-6) + 2rem); }
+  }
+</style>

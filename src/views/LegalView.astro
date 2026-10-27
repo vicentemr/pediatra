@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+import { site, type Lang } from '../data/site';
+import { t } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const s = t(lang);
+const es = lang === 'es';
+---
+
+<Base lang={lang} route="legal" title={`${s.footer.legal} · ${site.doctor.name}`} description={s.footer.legal}>
+  <section class="section page">
+    <div class="wrap measure legal">
+      <h1>{s.footer.legal}</h1>
+      <p class="demo-note">
+        {es
+          ? 'Textos pendientes: el titular debe facilitar sus datos fiscales y revisar estos apartados con su asesor (LSSI-CE, RGPD y LOPDGDD).'
+          : 'Pending text: the owner must provide their tax details and review these sections with their adviser (LSSI-CE, GDPR and LOPDGDD).'}
+      </p>
+      <h2>{es ? 'Aviso legal' : 'Legal notice'}</h2>
+      <p>{es ? 'Titular' : 'Owner'}: {site.doctor.name}. NIF: [pendiente]. {es ? 'Domicilio' : 'Address'}: {site.contact.address}. {site.doctor.collegiate}. Email: {site.contact.email}.</p>
+      <h2>{es ? 'Política de privacidad' : 'Privacy policy'}</h2>
+      <p>{es
+        ? 'Los datos que facilitas al reservar o comprar se usan solo para gestionar tu cita o tu curso. Los pagos los procesa una pasarela de pago externa; esta web no guarda datos de tarjetas.'
+        : 'The data you provide when booking or buying is used only to manage your visit or course. Payments are processed by an external payment provider; this website does not store card details.'}</p>
+      <h2>{es ? 'Política de cookies' : 'Cookie policy'}</h2>
+      <p>{es
+        ? 'Esta versión no usa cookies de análisis ni de publicidad. Si se activan los anuncios, se pedirá tu consentimiento antes.'
+        : 'This version does not use analytics or advertising cookies. If advertising is enabled, your consent will be requested first.'}</p>
+      <h2>{es ? 'Condiciones de compra de cursos' : 'Course terms'}</h2>
+      <p>{es
+        ? 'Contenido digital: al recibir el acceso aceptas el inicio inmediato y la pérdida del derecho de desistimiento, según el art. 103.m del TRLGDCU.'
+        : 'Digital content: by receiving access you agree to immediate delivery and lose the right of withdrawal, under art. 103.m of the Spanish consumer law (TRLGDCU).'}</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page { padding-top: var(--space-5); }
+  .legal { display: grid; gap: var(--space-2); }
+  .legal h1 { font-size: var(--step-3); }
+  .legal h2 { font-size: var(--step-2); margin-top: var(--space-3); }
+  .legal p:not(.demo-note) { color: var(--ink-soft); }
+</style>

@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+import CourseList from '../components/CourseList.astro';
+import { site, type Lang } from '../data/site';
+import { routes, t } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const s = t(lang);
+---
+
+<Base lang={lang} route="courses" title={`${s.courses.title} · ${site.doctor.name}`} description={s.courses.lead}>
+  <section class="section page">
+    <div class="wrap">
+      <div class="section-head">
+        <h1>{s.courses.title}</h1>
+        <p class="lead">{s.courses.lead}</p>
+      </div>
+      <CourseList lang={lang} detailed />
+      <aside class="cta on-bottle">
+        <p>{lang === 'es' ? '¿Prefieres que lo veamos en consulta?' : 'Would you rather talk it through in clinic?'}</p>
+        <a class="btn" href={routes.book[lang]}>{s.nav.book}</a>
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page { padding-top: var(--space-5); }
+  .page h1 { font-size: var(--step-3); max-width: 18ch; }
+  .cta {
+    margin-top: var(--space-5); padding: var(--space-4);
+    border-radius: calc(var(--radius) * 1.4);
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3);
+  }
+  .cta p { font: 700 var(--step-2)/1.15 var(--font-display); letter-spacing: -0.02em; max-width: 22ch; }
+</style>

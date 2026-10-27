@@ -1,0 +1,46 @@
+---
+import { site, type Lang } from '../data/site';
+import { t } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const s = t(lang);
+---
+
+<table class="spec">
+  <caption class="visually-hidden">{s.specialties.title}</caption>
+  <thead>
+    <tr><th scope="col">{s.specialties.age}</th><th scope="col">{s.specialties.title}</th></tr>
+  </thead>
+  <tbody>
+    {site.specialties.map((x) => (
+      <tr>
+        <td class="spec__age num">{x.age[lang]}</td>
+        <th scope="row">
+          <span class="spec__name">{x.name[lang]}</span>
+          <span class="spec__desc">{x.desc[lang]}</span>
+        </th>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+<style>
+  .spec { width: 100%; border-collapse: collapse; }
+  .spec thead th {
+    text-align: left; font-size: var(--step--1); color: var(--on-bottle-soft); font-weight: 700;
+    padding: 0 0 0.75rem; border-bottom: 2px solid var(--on-bottle);
+  }
+  .spec td, .spec tbody th { padding: 1.25rem 0; border-bottom: 1px solid rgb(234 243 230 / 0.2); vertical-align: top; text-align: left; font-weight: 400; }
+  .spec__age { width: 12rem; padding-right: var(--space-3) !important; color: var(--ochre); font-weight: 700; white-space: nowrap; }
+  .spec__name { display: block; font: 700 var(--step-1)/1.2 var(--font-display); letter-spacing: -0.01em; color: var(--on-bottle); }
+  .spec__desc { display: block; margin-top: 0.3rem; color: var(--on-bottle-soft); max-width: 60ch; }
+  .spec tbody tr { transition: background-color 0.25s var(--ease-out); }
+  .spec tbody tr:hover { background: rgb(234 243 230 / 0.05); }
+  @media (max-width: 640px) {
+    .spec thead { display: none; }
+    .spec tr { display: grid; padding: 1rem 0; border-bottom: 1px solid rgb(234 243 230 / 0.2); }
+    .spec td, .spec tbody th { padding: 0; border: 0; }
+    .spec__age { width: auto; margin-bottom: 0.35rem; }
+  }
+</style>

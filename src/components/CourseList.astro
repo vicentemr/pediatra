@@ -1,0 +1,67 @@
+---
+import { site, money, type Lang } from '../data/site';
+import { t } from '../i18n/ui';
+
+interface Props { lang: Lang; detailed?: boolean; only?: string[] }
+const { lang, detailed = false, only } = Astro.props;
+const s = t(lang);
+const courses = only ? site.courses.filter((c) => only.includes(c.id)) : site.courses;
+---
+
+<ol class="courses" role="list">
+  {courses.map((c) => (
+    <li class="course" id={detailed ? c.id : undefined}>
+      <div class="course__stage">
+        <span class="course__dot" aria-hidden="true"></span>
+        <span class="visually-hidden">{s.courses.stage}:</span>
+        <span class="num">{c.stage[lang]}</span>
+      </div>
+      <div class="course__body">
+        <h3>{c.name[lang]}</h3>
+        <p class="course__format">{c.format[lang]}</p>
+        <p class="course__desc">{c.desc[lang]}</p>
+        {detailed && (
+          <ul class="course__includes" aria-label={s.courses.includes}>
+            {c.includes[lang].map((i) => <li>{i}</li>)}
+          </ul>
+        )}
+      </div>
+      <div class="course__buy">
+        <p class="course__price num">{money(c.price, lang)}</p>
+        {c.stripeLink ? (
+          <a class="btn" href={c.stripeLink}>{s.courses.buy}</a>
+        ) : (
+          <a class="btn" href="#" data-demo-pay={`pay-${c.id}`}>{s.courses.buy}</a>
+        )}
+        {!c.stripeLink && <p class="demo-note" id={`pay-${c.id}`} tabindex="-1" hidden>{s.courses.demoPay}</p>}
+      </div>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .courses { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--ink); }
+  .course {
+    display: grid; gap: var(--space-3);
+    grid-template-columns: 9rem minmax(0, 1fr) 13rem;
+    padding-block: var(--space-4);
+    border-bottom: 1px solid var(--line);
+    scroll-margin-top: 6rem;
+  }
+  .course:target { background: rgb(243 213 143 / 0.35); }
+  .course__stage { display: flex; align-items: center; gap: 0.6rem; font-weight: 700; color: var(--bottle); align-self: start; padding-top: 0.35rem; }
+  .course__dot { width: 0.9rem; height: 0.9rem; border-radius: 50%; background: var(--ochre); box-shadow: 0 0 0 3px var(--bottle-deep); flex: none; }
+  .course__body { display: grid; gap: 0.5rem; align-content: start; }
+  .course h3 { font-size: var(--step-2); }
+  .course__format { font-weight: 700; color: var(--tomato-deep); font-size: var(--step--1); }
+  .course__desc { color: var(--ink-soft); max-width: 58ch; }
+  .course__includes { margin: 0.4rem 0 0; padding-left: 1.2rem; display: grid; gap: 0.2rem; }
+  .course__includes li::marker { color: var(--tomato); }
+  .course__buy { display: grid; gap: 0.75rem; justify-items: start; align-content: start; }
+  .course__price { font: 750 var(--step-3)/1 var(--font-display); letter-spacing: -0.03em; }
+  @media (max-width: 860px) {
+    .course { grid-template-columns: 1fr; gap: var(--space-2); }
+    .course__buy { grid-template-columns: auto auto; align-items: center; gap: var(--space-3); }
+    .course__buy .demo-note { grid-column: 1 / -1; }
+  }
+</style>

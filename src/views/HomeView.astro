@@ -1,0 +1,149 @@
+---
+import Base from '../layouts/Base.astro';
+import GrowthChart from '../components/GrowthChart.astro';
+import Profile from '../components/Profile.astro';
+import Specialties from '../components/Specialties.astro';
+import CourseList from '../components/CourseList.astro';
+import BookingPicker from '../components/BookingPicker.astro';
+import Faq from '../components/Faq.astro';
+import { site, money, type Lang } from '../data/site';
+import { routes, t } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const s = t(lang);
+const from = Math.min(...site.booking.consultations.map((c) => c.price));
+const title = lang === 'es'
+  ? `${site.doctor.name} · Pediatra en Málaga`
+  : `${site.doctor.name} · Pediatrician in Málaga`;
+const description = s.hero.lead;
+const demoSlots = ['10:15', '12:30', '17:15', '18:45'];
+---
+
+<Base lang={lang} route="home" title={title} description={description}>
+  <section class="hero">
+    <div class="wrap hero__grid">
+      <div class="hero__copy">
+        <h1>{s.hero.title}</h1>
+        <p class="lead">{s.hero.lead}</p>
+        <div class="hero__actions">
+          <a class="btn" href="#reservar">
+            {s.hero.book}
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11m-4-4 4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="btn btn--quiet" href={routes.courses[lang]}>{s.hero.courses}</a>
+        </div>
+        <p class="hero__from num">{lang === 'es' ? 'Consultas desde' : 'Visits from'} <strong>{money(from, lang)}</strong></p>
+      </div>
+      <GrowthChart lang={lang} class="hero__chart" />
+    </div>
+
+    <div class="wrap slots">
+      <p class="slots__title">
+        {s.slots.title}
+        {site.demo && <span class="stamp stamp--demo">{s.slots.note}</span>}
+      </p>
+      <ul class="slots__list" role="list">
+        {demoSlots.map((tm, i) => (
+          <li><a class="slot num" href="#reservar"><small>{i < 2 ? (lang === 'es' ? 'Mañana' : 'Tomorrow') : (lang === 'es' ? 'Pasado' : 'Next day')}</small>{tm}</a></li>
+        ))}
+      </ul>
+      <a class="slots__all" href="#reservar">{s.slots.all}</a>
+    </div>
+  </section>
+
+  <section class="section" id="sobre-mi">
+    <div class="wrap"><Profile lang={lang} /></div>
+  </section>
+
+  <section class="section on-bottle" id="especialidades">
+    <div class="wrap spec-grid">
+      <div class="section-head">
+        <h2>{s.specialties.title}</h2>
+        <p class="lead">{s.specialties.lead}</p>
+      </div>
+      <Specialties lang={lang} />
+    </div>
+  </section>
+
+  <section class="section" id="cursos">
+    <div class="wrap">
+      <div class="section-head courses-head">
+        <h2>{s.courses.title}</h2>
+        <p class="lead">{s.courses.lead}</p>
+      </div>
+      <CourseList lang={lang} />
+      <p class="more"><a href={routes.courses[lang]}>{s.courses.all}</a></p>
+    </div>
+  </section>
+
+  <section class="section booking" id="reservar">
+    <div class="wrap booking__grid">
+      <div class="section-head booking__head">
+        <h2>{s.book.title}</h2>
+        <p class="lead">{s.book.lead}</p>
+        <p class="booking__policy">{s.book.policy}</p>
+      </div>
+      <BookingPicker lang={lang} id="home-picker" />
+    </div>
+  </section>
+
+  <section class="section faq-section">
+    <div class="wrap"><Faq lang={lang} /></div>
+  </section>
+</Base>
+
+<style>
+  .hero { padding-top: clamp(2rem, 1rem + 4vw, 4.5rem); overflow: hidden; }
+  .hero__grid {
+    display: grid; gap: var(--space-4);
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: center;
+  }
+  .hero__copy { display: grid; gap: var(--space-3); justify-items: start; }
+  .hero h1 { max-width: 11ch; }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .hero__from { color: var(--ink-soft); }
+  .hero__from strong { color: var(--ink); font-size: var(--step-1); }
+  .hero__chart { margin-right: calc(var(--gutter) * -0.5); }
+
+  .slots {
+    display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3);
+    margin-top: var(--space-4); padding: var(--space-2) var(--space-3);
+    background: var(--bottle); color: var(--on-bottle);
+    border-radius: calc(var(--radius) * 1.4);
+  }
+  .slots__title { font-weight: 700; display: flex; gap: 0.75rem; align-items: center; }
+  .slots__title .stamp--demo { background: var(--sheet); }
+  .slots__list { display: flex; flex-wrap: wrap; gap: 0.5rem; list-style: none; margin: 0; padding: 0; }
+  .slot {
+    display: grid; min-height: 2.9rem; align-content: center; padding: 0.35rem 0.9rem;
+    border-radius: 8px; background: rgb(234 243 230 / 0.1); box-shadow: inset 0 0 0 1.5px rgb(234 243 230 / 0.35);
+    text-decoration: none; font-weight: 700; line-height: 1.1;
+    transition: background-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
+  }
+  .slot small { font-size: 0.75rem; color: var(--on-bottle-soft); font-weight: 600; }
+  .slot:hover { background: var(--ochre); color: var(--ink); }
+  .slot:hover small { color: var(--ink); }
+  .slots__all { margin-left: auto; font-weight: 700; color: var(--ochre); }
+
+  .spec-grid { display: grid; grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr); gap: var(--space-5); align-items: start; }
+  .courses-head { max-width: 48rem; }
+  .more { margin-top: var(--space-3); font-weight: 700; }
+
+  .booking { background: linear-gradient(transparent, rgb(227 167 47 / 0.12)); }
+  .booking__grid { display: grid; grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr); gap: var(--space-5); align-items: start; }
+  .booking__head { position: sticky; top: 7rem; }
+  .booking__policy { color: var(--ink-soft); font-size: var(--step--1); }
+  .faq-section { padding-top: var(--space-5); }
+
+  @media (max-width: 960px) {
+    .hero__grid, .spec-grid, .booking__grid { grid-template-columns: 1fr; }
+    .hero__chart { margin-right: 0; }
+    .booking__head { position: static; }
+    .spec-grid { gap: var(--space-3); }
+  }
+  @media (max-width: 560px) {
+    .slots__all { margin-left: 0; }
+  }
+</style>

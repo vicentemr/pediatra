@@ -1,0 +1,82 @@
+---
+import { site, type Lang } from '../data/site';
+import { t } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const s = t(lang);
+const d = site.doctor;
+---
+
+<div class="profile">
+  <div class="record">
+    <div class="record__photo" role="img" aria-label={s.about.photo}>
+      <span class="record__initials" aria-hidden="true">VM</span>
+      <span class="record__photo-label">{s.about.photo}</span>
+    </div>
+    <dl class="record__fields">
+      <div><dt>{s.about.fields.name}</dt><dd>{d.name}</dd></div>
+      <div><dt>{s.about.fields.collegiate}</dt><dd class="num">{d.collegiate}</dd></div>
+      <div><dt>{s.about.fields.languages}</dt><dd>{d.languages[lang]}</dd></div>
+      <div><dt>{s.about.fields.where}</dt><dd>Málaga</dd></div>
+    </dl>
+    <p class="record__years"><span class="num">{d.yearsExperience}</span> {s.about.years}</p>
+  </div>
+  <div class="profile__text">
+    <h2>{s.about.title}</h2>
+    <p class="profile__bio measure">{d.bio[lang]}</p>
+    <h3>{s.about.fields.training}</h3>
+    <ul class="profile__training">
+      {d.training[lang].map((x) => <li>{x}</li>)}
+    </ul>
+  </div>
+</div>
+
+<style>
+  .profile {
+    display: grid; gap: var(--space-5);
+    grid-template-columns: minmax(0, 25rem) minmax(0, 1fr);
+    align-items: start;
+  }
+  .record {
+    position: relative;
+    background: var(--sheet); border: 1.5px solid var(--bottle); border-radius: calc(var(--radius) * 1.4);
+    padding: var(--space-3);
+    box-shadow: 0 18px 40px -28px rgb(10 56 40 / 0.55);
+    transform: rotate(-1.2deg);
+  }
+  .record__photo {
+    aspect-ratio: 4 / 5; border-radius: var(--radius);
+    background:
+      repeating-linear-gradient(135deg, rgb(14 74 55 / 0.07) 0 10px, transparent 10px 20px),
+      var(--paper);
+    border: 1.5px dashed var(--bottle);
+    display: grid; place-items: center; align-content: center; gap: 0.5rem;
+  }
+  .record__initials { font: 750 4.5rem/1 var(--font-display); color: var(--bottle); letter-spacing: -0.04em; }
+  .record__photo-label { font-size: var(--step--1); color: var(--ink-soft); }
+  .record__fields { margin: var(--space-3) 0 0; display: grid; gap: 0; }
+  .record__fields div { display: grid; grid-template-columns: 7rem 1fr; gap: 0.75rem; padding-block: 0.55rem; border-bottom: 1px dashed var(--line); }
+  .record__fields dt { font-size: var(--step--1); color: var(--ink-soft); font-weight: 700; }
+  .record__fields dd { margin: 0; font-weight: 600; }
+  .record__years {
+    position: absolute; right: -1rem; top: -1.25rem;
+    background: var(--tomato); color: #fff;
+    padding: 0.55rem 0.9rem; border-radius: 8px;
+    font-weight: 700; transform: rotate(4deg);
+    box-shadow: 0 10px 20px -12px rgb(163 48 27 / 0.8);
+  }
+  .record__years .num { font: 750 1.6rem/1 var(--font-display); margin-right: 0.15em; }
+  .profile__text { display: grid; gap: var(--space-3); padding-top: var(--space-2); }
+  .profile__bio { font-size: var(--step-1); line-height: 1.5; }
+  .profile__text h3 { margin-top: var(--space-2); }
+  .profile__training { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; color: var(--ink-soft); }
+  .profile__training li::marker { color: var(--tomato); }
+  @media (max-width: 860px) {
+    .profile { grid-template-columns: 1fr; }
+    .record { max-width: 25rem; transform: none; }
+    .record__photo { aspect-ratio: 16 / 9; }
+    .record__initials { font-size: 3rem; }
+    .record__years { right: 0.75rem; }
+  }
+</style>

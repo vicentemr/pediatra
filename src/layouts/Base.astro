@@ -1,0 +1,69 @@
+---
+import '../styles/global.css';
+import { site, type Lang } from '../data/site';
+import { routes, t, type RouteKey } from '../i18n/ui';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  lang: Lang;
+  route: RouteKey;
+  title: string;
+  description: string;
+  /** Landing de anuncios: sin navegación completa y sin indexar. */
+  minimal?: boolean;
+}
+
+const { lang, route, title, description, minimal = false } = Astro.props;
+const other: Lang = lang === 'es' ? 'en' : 'es';
+const canonical = new URL(routes[route][lang], Astro.site);
+const alternate = new URL(routes[route][other], Astro.site);
+const s = t(lang);
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#0e4a37" />
+    {minimal ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <link rel="alternate" hreflang={lang} href={canonical} />
+    <link rel="alternate" hreflang={other} href={alternate} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content={lang === 'es' ? 'es_ES' : 'en_GB'} />
+    <meta property="og:type" content="website" />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Physician',
+      name: site.doctor.name,
+      medicalSpecialty: 'Pediatric',
+      address: { '@type': 'PostalAddress', streetAddress: site.contact.address, addressLocality: 'Málaga', addressCountry: 'ES' },
+      telephone: site.contact.phone,
+      url: canonical.href,
+    })} />
+    <!-- Píxel de Meta y etiqueta de Google Ads/GA4: añadir aquí junto a un banner de cookies cuando se activen los anuncios. -->
+  </head>
+  <body>
+    <a class="skip" href="#main">{s.skip}</a>
+    <Header lang={lang} route={route} minimal={minimal} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} route={route} />
+    <script>
+      // Botones de pago sin enlace real (modo demo): muestran un aviso en lugar de navegar.
+      document.querySelectorAll<HTMLAnchorElement>('[data-demo-pay]').forEach((a) => {
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          const note = document.getElementById(a.dataset.demoPay!);
+          if (note) { note.hidden = false; note.focus(); }
+        });
+      });
+    </script>
+  </body>
+</html>

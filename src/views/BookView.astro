@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import BookingPicker from '../components/BookingPicker.astro';
+import Faq from '../components/Faq.astro';
+import { site, type Lang } from '../data/site';
+import { t } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const s = t(lang);
+---
+
+<Base lang={lang} route="book" title={`${s.book.title} · ${site.doctor.name}`} description={s.book.lead}>
+  <section class="section page">
+    <div class="wrap page__grid">
+      <div class="section-head">
+        <h1>{s.book.title}</h1>
+        <p class="lead">{s.book.lead}</p>
+        <ul class="facts">
+          <li>{s.book.secure}</li>
+          <li>{s.book.policy}</li>
+          <li>{site.contact.address}</li>
+        </ul>
+      </div>
+      <BookingPicker lang={lang} id="book-picker" />
+    </div>
+  </section>
+  <section class="section faq-section">
+    <div class="wrap"><Faq lang={lang} /></div>
+  </section>
+</Base>
+
+<style>
+  .page { padding-top: var(--space-5); }
+  .page h1 { font-size: var(--step-3); }
+  .page__grid { display: grid; grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr); gap: var(--space-5); align-items: start; }
+  .facts { margin: var(--space-2) 0 0; padding-left: 1.2rem; display: grid; gap: 0.4rem; color: var(--ink-soft); }
+  .facts li::marker { color: var(--tomato); }
+  .faq-section { padding-top: 0; }
+  @media (max-width: 960px) { .page__grid { grid-template-columns: 1fr; gap: var(--space-3); } }
+</style>

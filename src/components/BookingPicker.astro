@@ -1,0 +1,224 @@
+---
+import { site, money, type Lang } from '../data/site';
+import { t } from '../i18n/ui';
+
+interface Props { lang: Lang; id?: string }
+const { lang, id = 'picker' } = Astro.props;
+const s = t(lang);
+const { calUrl, consultations } = site.booking;
+const live = calUrl.length > 0;
+const strings = {
+  locale: lang === 'es' ? 'es-ES' : 'en-GB',
+  taken: s.book.taken,
+  choose: s.book.choose,
+  pay: s.book.pay,
+};
+---
+
+<div class="picker" id={id} data-strings={JSON.stringify(strings)} data-live={live ? 'true' : 'false'} data-cal={calUrl}>
+  <fieldset class="picker__types">
+    <legend class="picker__label">{s.book.type}</legend>
+    {consultations.map((c, i) => (
+      <label class="type">
+        <input type="radio" name={`${id}-type`} value={c.id} data-slug={c.calSlug} data-price={money(c.price, lang)}
+          data-name={c.name[lang]} checked={i === 0} />
+        <span class="type__body">
+          <span class="type__name">{c.name[lang]}</span>
+          <span class="type__desc">{c.desc[lang]}</span>
+        </span>
+        <span class="type__price num">{money(c.price, lang)}<small>{c.minutes} {s.book.minutes}</small></span>
+      </label>
+    ))}
+  </fieldset>
+
+  {live ? (
+    <iframe class="picker__cal" title={s.book.title} loading="lazy"
+      src={`${calUrl}/${consultations[0].calSlug}?embed=true&locale=${lang}`}></iframe>
+  ) : (
+    <div class="picker__when">
+      <div>
+        <p class="picker__label">{s.book.day} <span class="stamp stamp--demo">{s.demo}</span></p>
+        <div class="days" role="radiogroup" aria-label={s.book.day}></div>
+      </div>
+      <div>
+        <p class="picker__label">{s.book.time}</p>
+        <div class="times" role="radiogroup" aria-label={s.book.time}></div>
+      </div>
+      <div class="summary" aria-live="polite">
+        <p class="summary__label">{s.book.summary}</p>
+        <p class="summary__text">{s.book.choose}</p>
+        <a class="btn summary__pay" href="#" aria-disabled="true">{s.book.pay}</a>
+        <p class="summary__fine">{s.book.secure}</p>
+        <p class="demo-note" id={`${id}-note`} tabindex="-1" hidden>{s.book.demoPay}</p>
+      </div>
+    </div>
+  )}
+</div>
+
+<style>
+  .picker {
+    display: grid; gap: var(--space-4);
+    background: var(--sheet); color: var(--ink);
+    border: 1.5px solid var(--bottle); border-radius: calc(var(--radius) * 1.4);
+    padding: clamp(1rem, 0.6rem + 2vw, 2rem);
+    box-shadow: 0 18px 40px -28px rgb(10 56 40 / 0.55);
+  }
+  .picker__label { font-weight: 700; margin: 0 0 0.75rem; display: flex; gap: 0.6rem; align-items: center; }
+  .picker__types { border: 0; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+  .picker__types legend { padding: 0; }
+  .type {
+    display: grid; grid-template-columns: auto 1fr auto; gap: 0.9rem; align-items: center;
+    padding: 0.85rem 1rem; border: 1.5px solid var(--line); border-radius: var(--radius);
+    background: #fff; cursor: pointer;
+    transition: border-color 0.2s var(--ease-out), background-color 0.2s var(--ease-out);
+  }
+  .type:hover { border-color: var(--bottle); }
+  .type:has(input:checked) { border-color: var(--bottle); background: rgb(14 74 55 / 0.06); box-shadow: inset 0 0 0 1px var(--bottle); }
+  .type input { width: 1.2rem; height: 1.2rem; margin: 0; }
+  .type__body { display: grid; gap: 0.1rem; }
+  .type__name { font-weight: 700; }
+  .type__desc { font-size: var(--step--1); color: var(--ink-soft); }
+  .type__price { display: grid; text-align: right; font: 700 var(--step-1)/1.1 var(--font-display); }
+  .type__price small { font: 600 var(--step--1) var(--font-text); color: var(--ink-soft); }
+
+  .picker__when { display: grid; gap: var(--space-3); }
+  .days, .times { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .picker :global(.chip) {
+    min-height: 2.9rem; min-width: 4.6rem; padding: 0.45rem 0.8rem;
+    border: 1.5px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink);
+    font: 650 1.02rem/1.15 var(--font-display); font-variant-numeric: tabular-nums; cursor: pointer;
+    transition: border-color 0.2s var(--ease-out), background-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
+  }
+  .picker :global(.chip small) { display: block; font: 600 0.78rem/1.2 var(--font-text); color: var(--ink-soft); text-transform: capitalize; }
+  .picker :global(.chip:hover:not(:disabled)) { border-color: var(--bottle); }
+  .picker :global(.chip[aria-checked='true']) { background: var(--bottle); border-color: var(--bottle); color: var(--on-bottle); }
+  .picker :global(.chip[aria-checked='true'] small) { color: var(--on-bottle-soft); }
+  .picker :global(.chip:disabled) { cursor: not-allowed; color: #6f8178; background: transparent; border-style: dashed; text-decoration: line-through; }
+
+  .summary { border-top: 1.5px dashed var(--line); padding-top: var(--space-3); display: grid; gap: 0.6rem; justify-items: start; }
+  .summary__label { font-size: var(--step--1); color: var(--ink-soft); font-weight: 700; }
+  .summary__text { font: 700 var(--step-1)/1.2 var(--font-display); }
+  .summary__fine { font-size: var(--step--1); color: var(--ink-soft); }
+  .picker__cal { width: 100%; min-height: 640px; border: 0; border-radius: var(--radius); background: #fff; }
+</style>
+
+<script>
+  type Strings = { locale: string; taken: string; choose: string; pay: string };
+
+  document.querySelectorAll<HTMLElement>('.picker').forEach((root) => {
+    const S: Strings = JSON.parse(root.dataset.strings!);
+    const types = root.querySelectorAll<HTMLInputElement>('input[type=radio]');
+
+    if (root.dataset.live === 'true') {
+      const frame = root.querySelector('iframe')!;
+      const lang = S.locale.slice(0, 2);
+      types.forEach((r) => r.addEventListener('change', () => {
+        frame.src = `${root.dataset.cal}/${r.dataset.slug}?embed=true&locale=${lang}`;
+      }));
+      return;
+    }
+
+    // Selector de demostración: huecos generados, no es disponibilidad real.
+    const daysEl = root.querySelector<HTMLElement>('.days')!;
+    const timesEl = root.querySelector<HTMLElement>('.times')!;
+    const text = root.querySelector<HTMLElement>('.summary__text')!;
+    const pay = root.querySelector<HTMLAnchorElement>('.summary__pay')!;
+    const note = root.querySelector<HTMLElement>('.demo-note')!;
+    const TIMES = ['9:30', '10:15', '11:00', '12:30', '16:30', '17:15', '18:00', '18:45'];
+    const dayFmt = new Intl.DateTimeFormat(S.locale, { weekday: 'short' });
+    const dateFmt = new Intl.DateTimeFormat(S.locale, { day: 'numeric', month: 'short' });
+    const longFmt = new Intl.DateTimeFormat(S.locale, { weekday: 'long', day: 'numeric', month: 'long' });
+
+    const days: Date[] = [];
+    const d = new Date();
+    d.setHours(12, 0, 0, 0);
+    while (days.length < 6) {
+      d.setDate(d.getDate() + 1);
+      if (d.getDay() !== 0 && d.getDay() !== 6) days.push(new Date(d));
+    }
+    const taken = (day: Date, i: number) => (day.getDate() * 7 + i * 3) % 5 === 0;
+
+    let day = 0;
+    let time: string | null = null;
+
+    const radio = (el: HTMLElement, checked: boolean) => {
+      el.setAttribute('role', 'radio');
+      el.setAttribute('aria-checked', String(checked));
+      el.tabIndex = checked ? 0 : -1;
+    };
+
+    // Navegación con flechas dentro de cada grupo
+    const arrows = (group: HTMLElement) => group.addEventListener('keydown', (e) => {
+      if (!['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(e.key)) return;
+      const items = [...group.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')];
+      const i = items.indexOf(document.activeElement as HTMLButtonElement);
+      const next = items[(i + (e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length];
+      e.preventDefault();
+      next?.click();
+    });
+    arrows(daysEl);
+    arrows(timesEl);
+
+    const update = () => {
+      const type = [...types].find((r) => r.checked)!;
+      if (time) {
+        text.textContent = `${type.dataset.name} · ${longFmt.format(days[day])}, ${time}`;
+        pay.textContent = `${S.pay} · ${type.dataset.price}`;
+        pay.setAttribute('aria-disabled', 'false');
+      } else {
+        text.textContent = S.choose;
+        pay.textContent = S.pay;
+        pay.setAttribute('aria-disabled', 'true');
+      }
+      note.hidden = true;
+    };
+
+    const renderTimes = () => {
+      timesEl.replaceChildren(...TIMES.map((tm, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'chip';
+        const isTaken = taken(days[day], i);
+        b.disabled = isTaken;
+        b.textContent = tm;
+        if (isTaken) b.setAttribute('aria-label', `${tm}, ${S.taken}`);
+        radio(b, tm === time);
+        b.addEventListener('click', () => {
+          time = tm; renderTimes(); update();
+          timesEl.querySelector<HTMLElement>('[aria-checked="true"]')?.focus();
+        });
+        return b;
+      }));
+      if (!time) timesEl.querySelector<HTMLButtonElement>('button:not(:disabled)')!.tabIndex = 0;
+    };
+
+    const renderDays = () => {
+      daysEl.replaceChildren(...days.map((dt, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'chip';
+        b.innerHTML = `<small>${dayFmt.format(dt)}</small>${dateFmt.format(dt)}`;
+        radio(b, i === day);
+        b.addEventListener('click', () => {
+          day = i;
+          if (time && taken(days[day], TIMES.indexOf(time))) time = null;
+          renderDays(); renderTimes(); update();
+          daysEl.querySelector<HTMLElement>('[aria-checked="true"]')?.focus();
+        });
+        return b;
+      }));
+    };
+
+    types.forEach((r) => r.addEventListener('change', update));
+    pay.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (pay.getAttribute('aria-disabled') === 'true') return;
+      note.hidden = false;
+      note.focus();
+    });
+
+    renderDays();
+    renderTimes();
+    update();
+  });
+</script>

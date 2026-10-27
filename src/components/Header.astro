@@ -1,0 +1,92 @@
+---
+import { site, type Lang } from '../data/site';
+import { routes, t, type RouteKey } from '../i18n/ui';
+
+interface Props { lang: Lang; route: RouteKey; minimal?: boolean }
+const { lang, route, minimal = false } = Astro.props;
+const s = t(lang);
+const other: Lang = lang === 'es' ? 'en' : 'es';
+const home = routes.home[lang];
+const bookHref = minimal ? '#reservar' : routes.book[lang];
+const links = [
+  { href: `${home}#sobre-mi`, label: s.nav.about },
+  { href: `${home}#especialidades`, label: s.nav.specialties },
+  { href: routes.courses[lang], label: s.nav.courses },
+];
+---
+
+{site.demo && (
+  <p class="demo-bar"><span class="stamp stamp--demo">{s.demo}</span> {s.demoBanner}</p>
+)}
+<header class="header">
+  <div class="wrap header__row">
+    <a class="brand" href={minimal ? routes.landing[lang] : home}>
+      <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="7" fill="currentColor" />
+        <path d="M5 25 C11 23 15 17 18 12 S24 6 27 6" fill="none" stroke="#e3a72f" stroke-width="3" stroke-linecap="round" />
+        <circle cx="18" cy="12" r="3" fill="#f4f8f1" />
+      </svg>
+      <span class="brand__text">
+        <span class="brand__name">{site.doctor.name}</span>
+        <span class="brand__role">{site.doctor.role[lang]} · Málaga</span>
+      </span>
+    </a>
+
+    {!minimal && (
+      <nav class="nav" aria-label={lang === 'es' ? 'Principal' : 'Main'}>
+        {links.map((l) => <a href={l.href}>{l.label}</a>)}
+      </nav>
+    )}
+
+    <div class="header__actions">
+      <a class="lang" href={routes[route][other]} hreflang={other} lang={other}>{s.switchLang}</a>
+      <a class="btn header__cta" href={bookHref} aria-current={route === 'book' ? 'page' : undefined}>{s.nav.book}</a>
+    </div>
+  </div>
+</header>
+
+<style>
+  .demo-bar {
+    margin: 0; padding: 0.45rem var(--gutter);
+    background: var(--ochre-soft); color: var(--ink);
+    font-size: var(--step--1); text-align: center;
+  }
+  .demo-bar .stamp { transform: none; padding: 0 0.45em; margin-right: 0.35em; }
+  .header {
+    position: sticky; top: 0; z-index: 20;
+    background: rgb(230 239 226 / 0.92);
+    backdrop-filter: saturate(1.2) blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .header__row {
+    display: flex; align-items: center; gap: var(--space-3);
+    min-height: 4.5rem; padding-block: 0.6rem;
+  }
+  .brand { display: flex; align-items: center; gap: 0.7rem; text-decoration: none; color: var(--bottle); }
+  .brand__mark { width: 2.3rem; height: 2.3rem; flex: none; }
+  .brand__text { display: grid; line-height: 1.1; }
+  .brand__name { font: 700 1.15rem/1.1 var(--font-display); color: var(--ink); letter-spacing: -0.01em; }
+  .brand__role { font-size: var(--step--1); color: var(--ink-soft); }
+  .nav { display: flex; gap: var(--space-3); margin-left: auto; }
+  .nav a { text-decoration: none; font-weight: 600; padding-block: 0.5rem; }
+  .nav a:hover { text-decoration: underline; text-decoration-color: var(--tomato); }
+  .header__actions { display: flex; align-items: center; gap: var(--space-2); margin-left: auto; }
+  .nav + .header__actions { margin-left: 0; }
+  .lang { font-weight: 600; font-size: var(--step--1); padding: 0.6rem 0.2rem; }
+  .header__cta { min-height: 2.75rem; padding-inline: 1.1rem; font-size: 1rem; white-space: nowrap; }
+  .brand__name { white-space: nowrap; }
+
+  @media (max-width: 860px) {
+    .nav { display: none; }
+    .brand__role { display: none; }
+  }
+  @media (max-width: 420px) {
+    .brand__name { font-size: 1rem; }
+    .brand__mark { width: 2rem; height: 2rem; }
+    .demo-bar { text-align: left; }
+    .header__row { gap: 0.75rem; }
+    .brand { gap: 0.5rem; }
+    .header__actions { gap: 0.5rem; }
+    .header__cta { padding-inline: 0.85rem; font-size: 0.92rem; }
+  }
+</style>
